@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Secrets / env (config 仅引用外部路径，但兜底加一道)
+.env
+*.env
+auth.json
+*.token
+*.key
+*.pem
+creds*.json
+.creds/
+
+# Caches & temp data
+*_today.json
+_today.json
+*.log
+.cache/
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Claude session-local (matches at any depth)
+settings.local.json
+.claude/projects/
+.claude/todos/
+.claude/shell-snapshots/
+.claude/statsig/
+
+# xiaoheihe-cli debug artifacts
+_err.bin
+_err.txt
+_harvest_log.txt
+_out.bin
+_test.json
+
+# Reports — 历史报告内容不入库
+reports/
