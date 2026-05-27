@@ -1,0 +1,41 @@
+# 信息聚合 项目中央配置 — 三个 skill 共用
+# 凭证本体不存于此处，仅指向外部路径（避免和 tg-cli / xhh.py 现有逻辑冲突）
+
+channel_digest:
+  channels:
+    - "你不知道的内幕消息"
+    - "AI探索指南"
+    - "副业赚钱探索指南"
+    - "出海"
+    - "星辰观察站"
+  output_dir: "C:\\Users\\Hveky\\Desktop\\信息聚合\\reports\\telegram"
+  window:
+    mode: fixed_8am          # fixed_8am | rolling_24h
+    tz: "Asia/Shanghai"
+  push:
+    enabled: true
+    caption_with_title: true
+  filter:
+    extra_spam_keywords:
+      - "PG集团"
+      - "PG娱乐城"
+      - "6G.com"
+      - "娱乐城"
+      - "盘总"
+      - "灯塔实盘"
+      - "万U"
+      - "出款"
+    extra_whitelist_keywords: []
+    short_text_threshold: 15
+    media_caption_threshold: 30
+  auth:
+    env_file: "E:\\01-programs\\tg-cli\\.env"   # BOT_TOKEN / BOT_CHAT_ID 来源（tg-cli 同款）
+
+forum_research:
+  output_dir: "C:\\Users\\Hveky\\Desktop\\信息聚合\\reports\\linuxdo"
+  # forum-research 不需要凭证（走浏览器登录态）
+
+xiaoheihe:
+  output_dir: "C:\\Users\\Hveky\\Desktop\\信息聚合\\reports\\xiaoheihe"
+  auth:
+    creds_file: "C:\\Users\\Hveky\\.xhh\\creds.json"   # xhh.py 内部仍硬编码从 ~/.xhh 读，这里只是给 SKILL.md 文档化

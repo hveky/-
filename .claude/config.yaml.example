@@ -1,0 +1,27 @@
+# 信息聚合 中央配置示例 — 拷贝为 .claude/config.yaml 并按实际填写
+# 凭证（BOT_TOKEN/creds.json）本体不放这里，仅写路径
+
+channel_digest:
+  channels: []                                  # 留空 = 跑全部 broadcast channel
+  output_dir: "C:\\Users\\<YOU>\\reports\\telegram"
+  window:
+    mode: fixed_8am                             # fixed_8am | rolling_24h
+    tz: "Asia/Shanghai"
+  push:
+    enabled: true
+    caption_with_title: true
+  filter:
+    extra_spam_keywords: []
+    extra_whitelist_keywords: []
+    short_text_threshold: 15
+    media_caption_threshold: 30
+  auth:
+    env_file: "E:\\01-programs\\tg-cli\\.env"   # 必须包含 BOT_TOKEN / BOT_CHAT_ID
+
+forum_research:
+  output_dir: "C:\\Users\\<YOU>\\reports\\linuxdo"
+
+xiaoheihe:
+  output_dir: "C:\\Users\\<YOU>\\reports\\xiaoheihe"
+  auth:
+    creds_file: "C:\\Users\\<YOU>\\.xhh\\creds.json"

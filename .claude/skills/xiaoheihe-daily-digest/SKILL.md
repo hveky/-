@@ -10,7 +10,8 @@ description: Use when the user asks for a 小黑盒/heybox community digest, say
 Harvest the top 60 hot posts from 小黑盒 · 盒友杂谈 (topic_id 7214), fetch each post's full body via the user's logged-in Edge browser, then synthesize a deep observation report. The CLI handles ranking; the browser handles body fetching; **you** do the analysis.
 
 **Project root:** `C:\Users\Hveky\Desktop\信息聚合\xiaoheihe-cli`  
-**Config:** `C:\Users\Hveky\.xhh\config.yaml`  
+**Config:** `C:\Users\Hveky\Desktop\信息聚合\.claude\config.yaml` — 读 `xiaoheihe:` 一节  
+**Credentials:** `C:\Users\Hveky\.xhh\creds.json` (由 `xhh.py` 自己管理，路径硬编码在 `Path.home()/'.xhh'`)  
 **CLI:** `python xhh.py <command>` (run from project root)
 
 ---
@@ -37,7 +38,7 @@ python xhh.py setup
 3. 右键请求 → Copy → Copy as URL
 4. 粘贴到 setup 提示中，按两次 Enter 提交
 
-凭证保存到 `C:\Users\Hveky\.xhh\creds.json`（即 `config.yaml` 中 `auth.creds_file` 的路径）。
+凭证保存到 `C:\Users\Hveky\.xhh\creds.json`（路径由 `xhh.py` 硬编码 `Path.home()/'.xhh'/'creds.json'`，中央 config 的 `xiaoheihe.auth.creds_file` 仅作文档记录）。
 
 ### `xhh harvest` — 批量抓帖子元数据（Skill 主用）
 
@@ -100,15 +101,15 @@ python xhh.py open 181682374    # 直接用 linkid 打开
 
 ### 0. Read config
 
-Read project config to get paths:
+Read the central project config:
 
 ```
-file_path: C:\Users\Hveky\.xhh\config.yaml
+file_path: C:\Users\Hveky\Desktop\信息聚合\.claude\config.yaml
 ```
 
-Extract:
-- `output_dir` → report save directory (fallback: `C:\Users\Hveky\Desktop\信息聚合\reports\xiaoheihe`)
-- `auth.creds_file` → path to xhh credentials JSON (fallback: `C:\Users\Hveky\.xhh\creds.json`)
+Extract from the `xiaoheihe:` section:
+- `xiaoheihe.output_dir` → report save directory (fallback: `C:\Users\Hveky\Desktop\信息聚合\reports\xiaoheihe`)
+- `xiaoheihe.auth.creds_file` → 文档记录路径（实际 `xhh.py` 直读 `~/.xhh/creds.json`，fallback 同此）
 
 ### 1. Harvest top 60 post meta
 
@@ -118,7 +119,7 @@ cd /c/Users/Hveky/Desktop/信息聚合/xiaoheihe-cli && python xhh.py harvest --
 
 Read `_today.json`. Structure: see CLI Reference → `xhh harvest` above.
 
-If harvest errors with `non-ok status` / `非法请求`, credentials are stale (credentials read from `auth.creds_file` in config.yaml) → tell the user to run `xhh setup` following the CLI Reference steps above.
+If harvest errors with `non-ok status` / `非法请求`, credentials are stale (`xhh.py` reads from `~/.xhh/creds.json`) → tell the user to run `xhh setup` following the CLI Reference steps above.
 
 ### 2. Fetch each post body via browser
 

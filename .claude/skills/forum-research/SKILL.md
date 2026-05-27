@@ -314,13 +314,13 @@ Default language: Chinese.
 
 ## Configuration
 
-Before starting, read the project config file:
+Before starting, read the central project config:
 
 ```
-file_path: C:\Users\Hveky\Desktop\信息聚合\forum-research\config.yaml
+file_path: C:\Users\Hveky\Desktop\信息聚合\.claude\config.yaml
 ```
 
-Use `output_dir` from config as the report save path. If the file is missing or `output_dir` is absent, fall back to `C:\Users\Hveky\Desktop\信息聚合\reports\linuxdo`.
+Use `forum_research.output_dir` as the report save path. If the file is missing or the key is absent, fall back to `C:\Users\Hveky\Desktop\信息聚合\reports\linuxdo`.
 
 ---
 
@@ -330,7 +330,7 @@ Use `output_dir` from config as the report save path. If the file is missing or 
 - **Max posts**: Default 50
 - **Output language**: Default 中文
 - **Focus themes**: Optional filter
-- **Output path**: Read from `config.yaml` → `output_dir` (see Configuration section above)
+- **Output path**: Read from `.claude/config.yaml` → `forum_research.output_dir` (see Configuration section above)
 
 ## Output — Save report to file
 

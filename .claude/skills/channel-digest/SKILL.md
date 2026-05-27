@@ -9,10 +9,10 @@ description: 把订阅的 Telegram 频道过去 24h（昨 8:00 → 今 8:00 Asia
 用户说「频道日报 / 跑 tg digest / channel digest / telegram digest」时跑。这是一个**流程式 workflow** 任务，必须按 Step 1 → Step 8 严格顺序执行，不要跳步。
 
 ## 凭证 & 路径
-- Bot 凭证路径由 `config.yaml` 的 `auth.env_file` 指定（Step 1 读取；若字段缺失回退到 `E:\01-programs\tg-cli\.env`）。**绝不把 token 打印到对话、写进 HTML、或作为命令行参数。** Python 内 `os.environ` 或读文件后用变量传递。
+- **中央配置**：`C:\Users\Hveky\Desktop\信息聚合\.claude\config.yaml`，本 skill 读 `channel_digest:` 一节。
+- Bot 凭证路径由中央 config 的 `channel_digest.auth.env_file` 指定（Step 1 读取；若字段缺失回退到 `E:\01-programs\tg-cli\.env`）。**绝不把 token 打印到对话、写进 HTML、或作为命令行参数。** Python 内 `os.environ` 或读文件后用变量传递。
 - `tg-cli` 已在 PATH（`tg --help` 能跑）。
-- 同目录配置：`./config.yaml`（与本 skill.md 同目录）。
-- 默认报告落盘：`C:\Users\Hveky\Desktop\tg-digest\YYYY-MM-DD.html`（路径可被 config 覆盖）。
+- 默认报告落盘：`channel_digest.output_dir`。
 
 ---
 
@@ -29,13 +29,13 @@ description: 把订阅的 Telegram 频道过去 24h（昨 8:00 → 今 8:00 Asia
 
 # Workflow
 
-## Step 1 — 读 config + 刷新
+## Step 1 — 读中央 config + 刷新
 
-1. 读 `C:\Users\Hveky\Desktop\信息聚合\channel-digest\config.yaml`。
-   - 不存在 → 用本 skill 自带的模板（见文末「config.yaml 模板」段落）创建一份，**直接停下来**告诉用户：「已生成 config.yaml，请在 `channels:` 填好要 digest 的频道名再重新触发」。不要继续往下跑。
-   - 同时取 `auth.env_file`（Bot 凭证 .env 文件路径）。
+1. 读 `C:\Users\Hveky\Desktop\信息聚合\.claude\config.yaml`，取 `channel_digest:` 一节。
+   - 文件不存在 → **直接停下来**告诉用户：「中央 config 缺失，请参考仓库根的 `.claude/config.yaml.example` 创建 `.claude/config.yaml` 并填好 `channel_digest:` 一节再重新触发」。不要继续往下跑。
+   - 同时取 `channel_digest.auth.env_file`（Bot 凭证 .env 文件路径）。
 2. `tg refresh --yaml`（失败不致命，记 warning 继续）。
-3. 取 `config.channels`：
+3. 取 `channel_digest.channels`：
    - 非空 → fuzzy match，每个频道命中失败给 warning；
    - 为空 `[]` → 跑 `tg chats --type channel --yaml` 拿全部 broadcast channel。
 
@@ -44,7 +44,7 @@ description: 把订阅的 Telegram 频道过去 24h（昨 8:00 → 今 8:00 Asia
 1. 用 Python 算时间窗（`zoneinfo.ZoneInfo("Asia/Shanghai")`）：
    - `until = today 08:00 +08:00`
    - `since = until - 24h`
-   - 如果 `config.window.mode == "rolling_24h"`：`until = now`, `since = now - 24h`。
+   - 如果 `channel_digest.window.mode == "rolling_24h"`：`until = now`, `since = now - 24h`。
 2. 对每个频道：`tg export "<CHAT>" --hours 24 -f json -o <tmp>/<safe_name>.json`。
 3. 读每个 JSON，按 `since <= message.date < until` 二次过滤（`--hours` 是滚动窗，需要本地对齐）。
 
@@ -60,7 +60,7 @@ description: 把订阅的 Telegram 频道过去 24h（昨 8:00 → 今 8:00 Asia
 | 媒体水贴 | 有 media（photo/video/audio）**且** caption ≤ `filter.media_caption_threshold`（默认 30）字 |
 | 系统消息 | service messages、pin 通知、加群通知等 |
 
-`config.filter.extra_spam_keywords` 追加进广告关键词；`config.filter.extra_whitelist_keywords` 命中则**强制保留**（覆盖所有过滤）。
+`channel_digest.filter.extra_spam_keywords` 追加进广告关键词；`channel_digest.filter.extra_whitelist_keywords` 命中则**强制保留**（覆盖所有过滤）。
 
 如果过滤后总消息数 < 5：**不写报告**，跟用户说「过去 24h 全频道有效信息不足，今日跳过」。
 
@@ -109,7 +109,7 @@ description: 把订阅的 Telegram 频道过去 24h（昨 8:00 → 今 8:00 Asia
 - 整体：`max-width: 880px; margin: 56px auto; background: #fafaf5; color: #1a1a1a; padding: 0 32px;`。
 - 所有来自消息的原文一律 `html.escape`。
 
-**文件名**：`<config.output_dir>\YYYY-MM-DD.html`；目录不存在就 `os.makedirs(exist_ok=True)`。
+**文件名**：`<channel_digest.output_dir>\YYYY-MM-DD.html`；目录不存在就 `os.makedirs(exist_ok=True)`。
 
 ## Step 8 — Bot 推送
 
@@ -125,8 +125,8 @@ r = requests.post(f"https://api.telegram.org/bot{token}/sendDocument",
 r.raise_for_status()
 ```
 
-- `config.push.enabled = false` 时只落盘不推。
-- `config.push.caption_with_title = false` → caption 用 `f"频道日报 {YYYY-MM-DD}"`。
+- `channel_digest.push.enabled = false` 时只落盘不推。
+- `channel_digest.push.caption_with_title = false` → caption 用 `f"频道日报 {YYYY-MM-DD}"`。
 - 推送失败：保留 HTML，告知用户错误码，但不要把 token 打印出来。
 
 ---
@@ -155,31 +155,10 @@ r.raise_for_status()
 
 ---
 
-# config.yaml 模板（首跑时若不存在则写入同目录）
+# 中央 config 缺失时
 
-```yaml
-# channel-digest 配置
-# channels: 要 digest 的频道名（tg chats 里看到的 name 或 username，可模糊匹配）
-#           留空 [] 表示跑全部 broadcast channel
-channels: []
+不要自动写本地副本。停下来告诉用户：
 
-# 本地 HTML 落盘目录（不含文件名；文件名永远是 YYYY-MM-DD.html）
-output_dir: "C:\\Users\\Hveky\\Desktop\\reports\\telegram"
+> 中央 config `.claude/config.yaml` 不存在。请拷贝仓库根的 `.claude/config.yaml.example` 为 `.claude/config.yaml`，填好 `channel_digest:` 一节的 `channels` / `output_dir` / `auth.env_file` 后再触发。
 
-# 时间窗
-window:
-  mode: fixed_8am   # fixed_8am | rolling_24h
-  tz: "Asia/Shanghai"
-
-# Bot 推送（凭证读 E:\01-programs\tg-cli\.env，这里只开关）
-push:
-  enabled: true
-  caption_with_title: true
-
-# 过滤器（在内置规则之上追加）
-filter:
-  extra_spam_keywords: []
-  extra_whitelist_keywords: []
-  short_text_threshold: 15
-  media_caption_threshold: 30
-```
+`channel_digest:` 一节示例字段：`channels` / `output_dir` / `window.{mode,tz}` / `push.{enabled,caption_with_title}` / `filter.{extra_spam_keywords,extra_whitelist_keywords,short_text_threshold,media_caption_threshold}` / `auth.env_file`。
